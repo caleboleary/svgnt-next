@@ -1,6 +1,8 @@
 import type { NextPage } from "next";
-import React from "react";
+import React, { type MouseEvent as ReactMouseEvent } from "react";
 import dummyGameSate from "../dummyData/dummyGameState.json";
+
+import drawStar from "../drawers/drawStar";
 
 const Home: NextPage = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -17,12 +19,12 @@ const Home: NextPage = () => {
   const uncommitedGlobalXOffset = React.useRef<number>(0);
   const uncommitedGlobalYOffset = React.useRef<number>(0);
 
-  const handleMouseDown = (e: MouseEvent) => {
+  const handleMouseDown = (e: ReactMouseEvent<HTMLCanvasElement>) => {
     dragStart.current = [e.pageX, e.pageY];
     isDragging.current = true;
   };
 
-  const handleMouseUp = (_e: MouseEvent) => {
+  const handleMouseUp = (_e: ReactMouseEvent<HTMLCanvasElement>) => {
     isDragging.current = false;
     globalXOffset.current += uncommitedGlobalXOffset.current;
     globalYOffset.current += uncommitedGlobalYOffset.current;
@@ -39,24 +41,25 @@ const Home: NextPage = () => {
         currentMouseCoords.current[1] - dragStart.current[1];
     }
 
-    if (context) {
-      context.clearRect(0, 0, 1000, 1000);
-      context.strokeStyle = "white";
+    if (context && canvasRef.current) {
+      canvasRef.current.width = canvasRef.current.clientWidth;
+      canvasRef.current.height = canvasRef.current.clientHeight;
+      context.clearRect(
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height
+      );
+
       dummyGameSate.stars.forEach((star) => {
-        context.beginPath();
-        context.arc(
-          (star.x + 5000) / 3 +
-            globalXOffset.current +
-            uncommitedGlobalXOffset.current,
-          (star.y + 5000) / 3 +
-            globalYOffset.current +
-            uncommitedGlobalYOffset.current,
-          star.radius,
-          0,
-          2 * Math.PI
+        drawStar(
+          star,
+          context,
+          globalXOffset.current,
+          uncommitedGlobalXOffset.current,
+          globalYOffset.current,
+          uncommitedGlobalYOffset.current
         );
-        context.stroke();
-        context.closePath();
       });
     }
     animFrameReq.current = window.requestAnimationFrame(draw);
@@ -82,8 +85,10 @@ const Home: NextPage = () => {
     <div className="App">
       <canvas
         ref={canvasRef}
-        height={1000}
-        width={1000}
+        style={{
+          width: "100vw",
+          height: "100vh",
+        }}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
