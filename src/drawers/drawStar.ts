@@ -1,12 +1,13 @@
+import type Star from "../types/Star";
+
 const drawStar = (
-  star: any,
+  star: Star,
   context: CanvasRenderingContext2D,
   globalXOffset: number,
   uncommitedGlobalXOffset: number,
   globalYOffset: number,
   uncommitedGlobalYOffset: number
 ): void => {
-  //TODO: any
   context.strokeStyle = "white";
   context.fillStyle = "white";
 

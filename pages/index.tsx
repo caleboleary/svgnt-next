@@ -1,8 +1,9 @@
 import type { NextPage } from "next";
 import React, { type MouseEvent as ReactMouseEvent } from "react";
-import dummyGameSate from "../dummyData/dummyGameState.json";
+import dummyGameSate from "../src/dummyData/dummyGameState.json";
 
-import drawStar from "../drawers/drawStar";
+import drawStar from "../src/drawers/drawStar";
+import drawStarlight from "../src/drawers/drawStarlight";
 
 const Home: NextPage = () => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -50,6 +51,20 @@ const Home: NextPage = () => {
         canvasRef.current.width,
         canvasRef.current.height
       );
+
+      dummyGameSate.stars.forEach((star) => {
+        context.globalCompositeOperation = "multiply";
+
+        drawStarlight(
+          star,
+          context,
+          globalXOffset.current,
+          uncommitedGlobalXOffset.current,
+          globalYOffset.current,
+          uncommitedGlobalYOffset.current
+        );
+      });
+      context.globalCompositeOperation = "source-over";
 
       dummyGameSate.stars.forEach((star) => {
         drawStar(
