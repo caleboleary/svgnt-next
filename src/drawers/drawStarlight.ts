@@ -1,19 +1,18 @@
-import type Star from "../types/Star";
+import Star from "../types/Star";
 
 const drawStarlight = (
   star: Star,
   context: CanvasRenderingContext2D,
   globalXOffset: number,
-  uncommitedGlobalXOffset: number,
+  uncommittedGlobalXOffset: number,
   globalYOffset: number,
-  uncommitedGlobalYOffset: number
+  uncommittedGlobalYOffset: number,
+  zoom: number
 ): void => {
-  //   context.fillStyle = `rgba(255,255,255,${0.0005 * star.radius})`;
-
   const starXOnScreenPos =
-    (star.x + 5000) / 3 + globalXOffset + uncommitedGlobalXOffset;
+    ((star.x + 5000) / 3 + globalXOffset + uncommittedGlobalXOffset) * zoom;
   const starYOnScreenPos =
-    (star.y + 5000) / 3 + globalYOffset + uncommitedGlobalYOffset;
+    ((star.y + 5000) / 3 + globalYOffset + uncommittedGlobalYOffset) * zoom;
 
   const gradient = context.createRadialGradient(
     starXOnScreenPos,
@@ -21,23 +20,37 @@ const drawStarlight = (
     1,
     starXOnScreenPos,
     starYOnScreenPos,
-    star.radius * 20
+    star.radius * 20 * zoom
   );
 
-  gradient.addColorStop(0, `rgba(255,255,255,${0.001 * star.radius})`);
-  gradient.addColorStop(0.9, `rgba(255,255,255,0)`);
+  const red = 255 * (1 - star.radius / 10);
+  const blue = 255 * (star.radius / 10);
+  const green = 255 * (1 - star.radius / 20);
 
-  context.fillStyle = gradient;
+  gradient.addColorStop(
+    0,
+    `rgba(${red},${green},${blue},${0.003 * star.radius})`
+  );
+  gradient.addColorStop(0.9, `rgba(${red},${green},${blue},0)`);
+
+  if (star.radius < 25) {
+    context.fillStyle = gradient;
+  } else {
+    //transparent
+    context.fillStyle = "rgba(0,0,0,0)";
+  }
 
   context.beginPath();
   context.arc(
     starXOnScreenPos,
     starYOnScreenPos,
-    star.radius * 50,
+    star.radius * 50 * zoom,
     0,
     2 * Math.PI
   );
   context.fill();
+  //clear out fillstyle
+  context.fillStyle = "black";
   context.closePath();
 };
 
